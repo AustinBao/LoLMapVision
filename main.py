@@ -77,7 +77,7 @@ pt2 = (0,0)
 topLeft_clicked = False
 botRight_clicked = False            
 
-model = YOLO("C:/Users/baosh/LoLMapVision/trained/weights/best.pt")
+model = YOLO("C:/OpenCV/LoLMapVision/trained/weights/best.pt")
 
 while True:
     img = pyautogui.screenshot()
@@ -97,19 +97,8 @@ while True:
         Map = cv2.cvtColor(Map, cv2.COLOR_BGR2RGB)
         
         # I want to filter by "classes" with the selectedChampion input from the start
-        model.predict(Map, save=True, save_txt=True, save_conf=True)
-        predictfilepath = "C:/Users/baosh/LoLMapVision/runs/detect/predict/labels/image0.txt"
-        lane = whichLane(Map,predictfilepath)
-        
-        # if lane == "fog":
-        #     cv2.putText(Map, text="Fog",org=(0,0),fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=10, color=(255,0,0), thickness=4)
-        # elif lane == "mid":
-        #     cv2.putText(Map, text="MidLane",org=(0,0),fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=10, color=(255,0,0), thickness=4)
-        # elif lane == "top":
-        #     cv2.putText(Map, text="TopLane",org=(0,0),fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=10, color=(255,0,0), thickness=4)
-        # elif lane == "bot":
-        #     cv2.putText(Map, text="BotLane",org=(0,0),fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=10, color=(255,0,0), thickness=4)
-        
+        model.predict(Map, save=True, save_txt=True, save_conf=True, max_det=1)
+    
         cv2.imshow("Map", Map)
 
     model.predict(frame, save=True, save_txt=True, save_conf=True)
