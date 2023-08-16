@@ -106,7 +106,9 @@ pt2 = (0,0)
 topLeft_clicked = False
 botRight_clicked = False            
 
-model = YOLO("C:/OpenCV/LoLMapVision/trained/weights/best.pt")
+#"C:/OpenCV/LoLMapVision/trained/weights/best.pt"
+#"C:/Users/baosh/LoLMapVision/trained/weights/best.pt"
+model = YOLO("C:Users/baosh/LoLMapVision/trained/weights/best.pt")
 
 while True:
     img = pyautogui.screenshot()
@@ -127,7 +129,9 @@ while True:
     
         model.predict(Map, save=True, save_txt=True, save_conf=True)
 
-        closest_lane = whichLane(Map, "C:/OpenCV/LoLMapVision/runs/detect/predict11/labels/image0.txt")
+        #"C:/OpenCV/LoLMapVision/runs/detect/predict11/labels/image0.txt"
+        # C:\Users\baosh\LoLMapVision\runs\detect
+        closest_lane = whichLane(Map, "C:/Users/baosh/LoLMapVision/runs/detect/predict/labels/image0.txt")
         cv2.putText(Map,text=f"{closest_lane}",org=(10,int(Map.shape[1] - 100)), fontFace=cv2.FONT_HERSHEY_COMPLEX,fontScale=1,
                     color=(255,255,255),thickness=2)
 
