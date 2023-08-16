@@ -1,50 +1,79 @@
 import pyautogui
 import math
 import cv2
+import os
 import numpy as np
 from ultralytics  import YOLO
 
 # So we know who is jungling
-# selectedChampion = input("What Champion should I be looking out for?\n")
+# selectedChampion = input("What Champion should I track?\n")
 
 def whichLane(source,labelFilePath):
-    fileLines = open(labelFilePath, "r")
+    if os.path.getsize(labelFilePath) == 0:
+        return "No Detection"
+
+    fileLines = open(labelFilePath, "r")    
     champInfo = fileLines.readlines()[-1].split()
     xc, yc= float(champInfo[1]), float(champInfo[2])
-
     img_height, img_width = source.shape[0], source.shape[1]
-    x_center, y_center = xc * img_width, yc * img_height
+    x_champ, y_champ = xc * img_width, yc * img_height
 
-    championPosition = (x_center, y_center)
-    
-    # rather than using dots draw triangles and mark zones that are considered Top, Mid, or Bot lane. 
-    # as soon as enemy enters that region/triangle's area, display the text 
+    championPosition = (x_champ, y_champ)
 
-    # Mid Lane plots
-    cv2.circle(source, center= (int(img_width/2),int(img_height/2)), radius=6, color=(0,255,0), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) - 100, int(img_height/2) + 100), radius=6, color=(0,255,0), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) + 100,int(img_height/2) - 100), radius=6, color=(0,255,0), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) - 50, int(img_height/2) + 50), radius=6, color=(0,255,0), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) + 50,int(img_height/2) - 50), radius=6, color=(0,255,0), thickness=-1)
-     
-    # Top Lane plots
-    cv2.circle(source, center= (int(img_width/2) - 100, int(img_height/2) - 100), radius=6, color=(255,0,0), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) - 100, int(img_height/2) + 50), radius=6, color=(255,0,0), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) - 100, int(img_height/2) - 20), radius=6, color=(255,0,0), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) + 50, int(img_height/2) - 100), radius=6, color=(255,0,0), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) - 20, int(img_height/2) - 100), radius=6, color=(255,0,0), thickness=-1)
+    botLaneCords =[(int(img_width/2) + 100, int(img_height/2) + 100),
+                   (int(img_width/2) + 100, int(img_height/2) - 50 ),
+                   (int(img_width/2) + 100, int(img_height/2) + 20),
+                   (int(img_width/2) - 50, int(img_height/2) + 100),
+                   (int(img_width/2) + 20, int(img_height/2) + 100) ]
     
-    # Bot Lane plots
-    cv2.circle(source, center= (int(img_width/2) + 100, int(img_height/2) + 100), radius=6, color=(0,0,255), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) + 100, int(img_height/2) - 50), radius=6, color=(0,0,255), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) + 100, int(img_height/2) + 20), radius=6, color=(0,0,255), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) - 50, int(img_height/2) + 100), radius=6, color=(0,0,255), thickness=-1)
-    cv2.circle(source, center= (int(img_width/2) + 20, int(img_height/2) + 100), radius=6, color=(0,0,255), thickness=-1)
+    topLaneCords =[(int(img_width/2) - 100, int(img_height/2) - 100),
+                   (int(img_width/2) - 100, int(img_height/2) + 50),
+                   (int(img_width/2) - 100, int(img_height/2) - 20),
+                   (int(img_width/2) + 50, int(img_height/2) - 100),
+                   (int(img_width/2) - 20, int(img_height/2) - 100) ]
     
-    cv2.imshow("Lanes", source)
+    midLaneCords =[(int(img_width/2),int(img_height/2)),
+                   (int(img_width/2) - 100, int(img_height/2) + 100),
+                   (int(img_width/2) + 100,int(img_height/2) - 100),
+                   (int(img_width/2) - 50, int(img_height/2) + 50),
+                   (int(img_width/2) + 50,int(img_height/2) - 50) ]
+    
+    allLanes = [topLaneCords, midLaneCords, botLaneCords]
 
-    return source
-    
+    topDistance = midDistance = botDistance = 1000
+    allDistance = []
+
+    for t in topLaneCords:
+        cv2.circle(source, center=t , radius=6, color=(0,255,0), thickness=-1)
+        champ_distance_from_circle = math.sqrt( (abs(championPosition[0]-t[0])**2) + (abs(championPosition[1]-t[1])**2) )
+        if champ_distance_from_circle < topDistance:
+            topDistance = champ_distance_from_circle         
+    for m in midLaneCords:
+        cv2.circle(source, center=m , radius=6, color=(0,0,255), thickness=-1)
+        champ_distance_from_circle = math.sqrt( (abs(championPosition[0]-m[0])**2) + (abs(championPosition[1]-m[1])**2) )
+        if champ_distance_from_circle < midDistance:
+            midDistance = champ_distance_from_circle    
+    for b in botLaneCords:
+        cv2.circle(source, center=b , radius=6, color=(255,0,0), thickness=-1)
+        champ_distance_from_circle = math.sqrt( (abs(championPosition[0]-b[0])**2) + (abs(championPosition[1]-b[1])**2) )
+        if champ_distance_from_circle < botDistance:
+            botDistance = champ_distance_from_circle 
+
+    allDistance.append(topDistance)
+    allDistance.append(midDistance)
+    allDistance.append(botDistance)
+
+    if allDistance[0] == 1000 and allDistance[1] == 1000 and allDistance[2] == 1000:
+        return "Fog"
+    else:
+        closest_lane = allDistance.index(min(allDistance))    
+        if closest_lane == 0:
+            return "Top"
+        elif closest_lane == 1:
+            return "Mid"
+        elif closest_lane == 2:
+            return "Bot"
+
 
 def draw_rectangle(event,x,y,flags,param):
 
@@ -95,21 +124,20 @@ while True:
         mapRegion = pyautogui.screenshot(region=(y1, x1, y2-y1, x2-x1))
         Map = np.array(mapRegion)
         Map = cv2.cvtColor(Map, cv2.COLOR_BGR2RGB)
-        
-        # I want to filter by "classes" with the selectedChampion input from the start
-        model.predict(Map, save=True, save_txt=True, save_conf=True, max_det=1)
     
+        model.predict(Map, save=True, save_txt=True, save_conf=True)
+
+        closest_lane = whichLane(Map, "C:/OpenCV/LoLMapVision/runs/detect/predict11/labels/image0.txt")
+        cv2.putText(Map,text=f"{closest_lane}",org=(10,int(Map.shape[1] - 100)), fontFace=cv2.FONT_HERSHEY_COMPLEX,fontScale=1,
+                    color=(255,255,255),thickness=2)
+
         cv2.imshow("Map", Map)
 
-    model.predict(frame, save=True, save_txt=True, save_conf=True)
+
     cv2.imshow('Live', frame)
         
     if cv2.waitKey(1) == 27:
         break
 
 cv2.destroyAllWindows()
-
-
-
-
 
