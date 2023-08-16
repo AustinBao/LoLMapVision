@@ -6,7 +6,11 @@ import numpy as np
 from ultralytics  import YOLO
 
 # So we know who is jungling
-# selectedChampion = input("What Champion should I track?\n")
+selectedChampion = input("What Champion should I track?\n")
+
+def whichChamp(champName):
+    names = ['Aatrox', 'Ahri', 'Akali', 'Alistar', 'Amumu', 'Anivia', 'Annie', 'Aphelios', 'Ashe', 'AurelionSol', 'Azir', 'Bard', 'Blitzcrank', 'Brand', 'Braum', 'Caitlyn', 'Camille', 'Cassiopeia', 'Chogath', 'Corki', 'Darius', 'Diana', 'DrMundo', 'Draven', 'Ekko', 'Elise', 'Evelynn', 'Ezreal', 'Fiddlesticks', 'Fiora', 'Fizz', 'Galio', 'Gangplank', 'Garen', 'Gnar', 'Gragas', 'Graves', 'Gwen', 'Hecarim', 'Heimerdinger', 'Illaoi', 'Irelia', 'Ivern', 'Janna', 'Jarvan', 'Jax', 'Jayce', 'Jhin', 'Jinx', 'Kaisa', 'Kalista', 'Kane', 'Karma', 'Karthus', 'Kassadin', 'Katarina', 'Kayle', 'Kayn', 'Kennen', 'KhaZix', 'Kled', 'KogMaw', 'LeBlanc', 'LeeSin', 'Leona', 'Lillia', 'Lissandra', 'Lucian', 'Lulu', 'Lux', 'Malphite', 'Malzahar', 'Maokai', 'MasterYi', 'Mindred', 'MissFortune', 'Mordekaiser', 'Morgana', 'Nami', 'Nasus', 'Nautilus', 'Neeko', 'Nidalee', 'Nilah', 'Nocturne', 'Nunu', 'Olaf', 'Orianna', 'Ornn', 'Pantheon', 'Poppy', 'Pyke', 'Qiyana', 'Quinn', 'Rakan', 'Rammus', 'Reksai', 'Rell', 'Renata', 'Renekton', 'Rengar', 'Riven', 'Rumble', 'Ryze', 'Samira', 'Sejuani', 'Senna', 'Seraphine', 'Sett', 'Shaco', 'Shen', 'Shyvana', 'Singed', 'Sion', 'Sivir', 'Skarner', 'Sona', 'Soraka', 'Swain', 'Sylas', 'Syndra', 'TahmKench', 'Taliyah', 'Talon', 'Taric', 'Teemo', 'Thresh', 'Tristana', 'Trundle', 'Tryndamere', 'TwistedFate', 'Twitch', 'Udyr', 'Urgot', 'Varus', 'Vayne', 'Veigar', 'Velkoz', 'Vex', 'Vi', 'Viego', 'Viktor', 'Vladimir', 'Volibear', 'Warwick', 'Wukong', 'Xayah', 'Xerath', 'XinZhao', 'Yasuo', 'Yone', 'Yorick', 'Yuumi', 'Zac', 'Zed', 'Zeri', 'Ziggs', 'Zilean', 'Zoe', 'Zyra']
+    return names.index(champName)
 
 def whichLane(source,labelFilePath):
     if os.path.getsize(labelFilePath) == 0:
@@ -107,8 +111,8 @@ topLeft_clicked = False
 botRight_clicked = False            
 
 #"C:/OpenCV/LoLMapVision/trained/weights/best.pt"
-#"C:/Users/baosh/LoLMapVision/trained/weights/best.pt"
-model = YOLO("C:Users/baosh/LoLMapVision/trained/weights/best.pt")
+#"C:/Users/baosh/LoLMapVision/trained/weights\best.pt"
+model = YOLO("C:/Users/baosh/LoLMapVision/trained/weights/best.pt")
 
 while True:
     img = pyautogui.screenshot()
@@ -126,8 +130,9 @@ while True:
         mapRegion = pyautogui.screenshot(region=(y1, x1, y2-y1, x2-x1))
         Map = np.array(mapRegion)
         Map = cv2.cvtColor(Map, cv2.COLOR_BGR2RGB)
-    
-        model.predict(Map, save=True, save_txt=True, save_conf=True)
+        
+        champInt = int(whichChamp(selectedChampion))
+        model.predict(Map, save=True, save_txt=True, save_conf=True, classes=champInt)
 
         #"C:/OpenCV/LoLMapVision/runs/detect/predict11/labels/image0.txt"
         # C:\Users\baosh\LoLMapVision\runs\detect
